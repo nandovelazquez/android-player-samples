@@ -58,7 +58,7 @@ public class AdapterView extends RecyclerView.Adapter<AdapterView.ViewHolder> {
     @Override
     public void onViewAttachedToWindow(ViewHolder holder) {
         super.onViewAttachedToWindow(holder);
-        holder.videoView.start();
+        //holder.videoView.start();
     }
 
     @Override

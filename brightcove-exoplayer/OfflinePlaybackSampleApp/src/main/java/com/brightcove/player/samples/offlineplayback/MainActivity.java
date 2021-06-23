@@ -22,6 +22,7 @@ import com.brightcove.player.event.Event;
 import com.brightcove.player.event.EventEmitter;
 import com.brightcove.player.event.EventListener;
 import com.brightcove.player.event.EventType;
+import com.brightcove.player.model.DeliveryType;
 import com.brightcove.player.model.Playlist;
 import com.brightcove.player.model.Video;
 import com.brightcove.player.network.ConnectivityMonitor;
@@ -33,7 +34,9 @@ import com.brightcove.player.samples.offlineplayback.utils.ViewUtil;
 import com.brightcove.player.view.BrightcovePlayer;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -100,7 +103,7 @@ public class MainActivity extends BrightcovePlayer {
     private String pasToken = "YOUR_PAS_TOKEN";
     private static final int PLAYDURATION_EXTENSION = 10000;
 
-    PlaylistModel playlist = PlaylistModel.byReferenceId("demo_odrm_widevine_dash", "Offline Playback List");
+//    PlaylistModel playlist = PlaylistModel.byReferenceId("demo_odrm_widevine_dash", "Offline Playback List");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,7 +147,8 @@ public class MainActivity extends BrightcovePlayer {
 
         brightcoveVideoView = ViewUtil.findView(this, R.id.brightcove_video_view);
         EventEmitter eventEmitter = brightcoveVideoView.getEventEmitter();
-        catalog = new OfflineCatalog(this, eventEmitter, ACCOUNT_ID, POLICY_KEY);
+        catalog = new OfflineCatalog(this, eventEmitter, "4744899836001",
+                "BCpkADawqM3O4rejQjSfnm8_C7CfzF3vWBrx_E1UY_gbfIel6Moo_qQC6HP1vjPt1TWxqNc4QW8bk2oBGgWfypaKVF8TjN_--UI2_WlFFIGTdKibkjIJRm3--fi7INarN-SFEpH88UGL-H0J");
 
         //Configure downloads through the catalog.
         catalog.setMobileDownloadAllowed(true);
@@ -176,21 +180,39 @@ public class MainActivity extends BrightcovePlayer {
             HttpRequestConfig.Builder httpRequestConfigBuilder = new HttpRequestConfig.Builder();
             httpRequestConfigBuilder.setBrightcoveAuthorizationToken(pasToken);
             httpRequestConfig = httpRequestConfigBuilder.build();
-            playlist.findPlaylist(catalog, httpRequestConfig, new PlaylistListener() {
-                @Override
-                public void onPlaylist(Playlist playlist) {
-                    videoListAdapter.setVideoList(playlist.getVideos());
-                    onVideoListUpdated(false);
-                    brightcoveVideoView.addAll(playlist.getVideos());
-                }
 
-                @Override
-                public void onError(String error) {
-                    String message = showToast("Failed to find playlist[%s]: %s", playlist.displayName, error);
-                    Log.w(TAG, message);
-                    onVideoListUpdated(true);
-                }
-            });
+            List<Video> videoList = new ArrayList<>();
+            String[] videoIDList = getResources().getStringArray(R.array.list_of_videos_upgrad);
+
+            for (String id : videoIDList) {
+                catalog.findVideoByID(id, new VideoListener() {
+                    @Override
+                    public void onVideo(Video video) {
+                        videoList.add(video);
+
+                        videoListAdapter.setVideoList(videoList);
+                        onVideoListUpdated(false);
+                        brightcoveVideoView.addAll(videoList);
+                    }
+                });
+            }
+
+
+//            playlist.findPlaylist(catalog, httpRequestConfig, new PlaylistListener() {
+//                @Override
+//                public void onPlaylist(Playlist playlist) {
+//                    videoListAdapter.setVideoList(playlist.getVideos());
+//                    onVideoListUpdated(false);
+//                    brightcoveVideoView.addAll(playlist.getVideos());
+//                }
+//
+//                @Override
+//                public void onError(String error) {
+//                    String message = showToast("Failed to find playlist[%s]: %s", playlist.displayName, error);
+//                    Log.w(TAG, message);
+//                    onVideoListUpdated(true);
+//                }
+//            });
         } else {
             videoListLabel.setVisibility(View.VISIBLE);
             videoListLabel.setText(R.string.offline_playlist);

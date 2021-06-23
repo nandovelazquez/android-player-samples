@@ -42,4 +42,12 @@
 
 
     <string name="video_estimated_size">Video estimated size goes here…</string>
+
+    <string-array name="list_of_videos_upgrad">
+        <item>6152780353001</item>
+        <item>6152780352001</item>
+        <item>6152781502001</item>
+        <item>6152782338001</item>
+    </string-array>
+
 </resources>
