@@ -1,5 +1,6 @@
 package com.brightcove.player.samples.offlineplayback;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -111,19 +112,24 @@ public class MainActivity extends BrightcovePlayer {
         setContentView(R.layout.activity_main);
 
         onCreate();
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
         ConnectivityMonitor.getInstance(this).addListener(connectivityListener);
         catalog.addDownloadEventListener(downloadEventListener);
         updateVideoList();
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        ConnectivityMonitor.getInstance(this).addListener(connectivityListener);
+        catalog.addDownloadEventListener(downloadEventListener);
+
     }
 
     @Override
@@ -192,7 +198,7 @@ public class MainActivity extends BrightcovePlayer {
 
                         videoListAdapter.setVideoList(videoList);
                         onVideoListUpdated(false);
-                        brightcoveVideoView.addAll(videoList);
+//                        brightcoveVideoView.addAll(videoList);
                     }
                 });
             }
@@ -256,15 +262,15 @@ public class MainActivity extends BrightcovePlayer {
     public void onConfigurationChanged(Configuration configuration) {
         super.onConfigurationChanged(configuration);
 
-        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            if (!brightcoveVideoView.isFullScreen()) {
-                brightcoveVideoView.getEventEmitter().emit(EventType.ENTER_FULL_SCREEN);
-            }
-        } else if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            if (brightcoveVideoView.isFullScreen()) {
-                brightcoveVideoView.getEventEmitter().emit(EventType.EXIT_FULL_SCREEN);
-            }
-        }
+//        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//            if (!brightcoveVideoView.isFullScreen()) {
+//                brightcoveVideoView.getEventEmitter().emit(EventType.ENTER_FULL_SCREEN);
+//            }
+//        } else if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+//            if (brightcoveVideoView.isFullScreen()) {
+//                brightcoveVideoView.getEventEmitter().emit(EventType.EXIT_FULL_SCREEN);
+//            }
+//        }
     }
 
     /**
@@ -491,10 +497,13 @@ public class MainActivity extends BrightcovePlayer {
      * @param video the video to be played.
      */
     private void playVideo(@NonNull Video video) {
-        brightcoveVideoView.stopPlayback();
-        brightcoveVideoView.clear();
-        brightcoveVideoView.add(video);
-        brightcoveVideoView.start();
+        Intent intent = new Intent(this, VideoPlayerActivity.class);
+        intent.putExtra("video", video.getId());
+        startActivity(intent);
+//        brightcoveVideoView.stopPlayback();
+//        brightcoveVideoView.clear();
+//        brightcoveVideoView.add(video);
+//        brightcoveVideoView.start();
     }
 
     private final EventListener licenseEventListener = new EventListener() {
