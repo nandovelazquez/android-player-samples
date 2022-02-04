@@ -5,11 +5,11 @@ apply from: 'constants.gradle'
 buildscript {
   repositories {
     google()
-    jcenter()
+    mavenCentral()
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.5.2'
+    classpath 'com.android.tools.build:gradle:7.1.3'
 
     classpath 'com.stanfy.spoon:spoon-gradle-plugin:1.2.2'
   }
@@ -29,13 +29,13 @@ configure(subprojects.findAll {it.name.endsWith('SampleApp')}) {
   repositories {
     mavenLocal()
     google()
-    jcenter()
+    mavenCentral()
 
     maven {
       url 'https://maven.google.com'
     }
     maven {
-      url 'http://repo.brightcove.com/releases'
+      url 'https://repo.brightcove.com/releases'
     }
     maven {
       url System.getenv('ANDROID_HOME') + '/extras/android/m2repository'
@@ -62,8 +62,8 @@ configure(subprojects.findAll {it.name.endsWith('SampleApp')}) {
     }
 
     compileOptions {
-      sourceCompatibility JavaVersion.VERSION_1_8
-      targetCompatibility JavaVersion.VERSION_1_8
+      sourceCompatibility JavaVersion.VERSION_11
+      targetCompatibility JavaVersion.VERSION_11
     }
 
     signingConfigs {
@@ -135,8 +135,8 @@ configure(subprojects.findAll {it.name.endsWith('SampleApp')}) {
     }
   }
 
-  if (project.parent.name.equals('brightcove-exoplayer') ||
-          project.parent.name.equals('brightcove-player-controls')) {
+  if (project.parent.name == 'brightcove-exoplayer' ||
+          project.parent.name == 'brightcove-player-controls') {
     dependencies {
       implementation "com.brightcove.player:exoplayer2:${anpVersion}"
       implementation "androidx.media:media:${ANDROIDX_MEDIA}"
