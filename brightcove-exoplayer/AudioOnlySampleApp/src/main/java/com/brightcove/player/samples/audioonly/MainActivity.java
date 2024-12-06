@@ -20,9 +20,21 @@ import com.brightcove.player.model.Playlist;
 import com.brightcove.player.model.Video;
 import com.brightcove.player.playback.PlaybackNotification;
 import com.brightcove.player.playback.PlaybackNotificationConfig;
+import com.brightcove.player.samples.adapters.AdapterView;
 import com.brightcove.player.view.BrightcoveExoPlayerVideoView;
 import com.brightcove.player.view.BrightcovePlayer;
 
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * This activity displays the BrightcovePlayer view along
+ * a list of media assets retrieved from the Brightcove platform.
+ * <p>
+ * Tapping each media item will play it on the BrightcovePlayer.
+ * <p>
+ * For a different behavior, check the @{@link VideoListActivity} activity
+ */
 public class MainActivity extends BrightcovePlayer {
 
     private final String TAG = this.getClass().getSimpleName();
@@ -47,6 +59,7 @@ public class MainActivity extends BrightcovePlayer {
     private Context context;
 
     private int repeatState = 0;
+    private List<Video> videoList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +123,17 @@ public class MainActivity extends BrightcovePlayer {
         setContentView(R.layout.activity_main_playlist);
         brightcoveVideoView = findViewById(R.id.brightcove_video_view_playlist);
         videoListView = findViewById(R.id.video_list_view);
-        adapterView = new AdapterView(brightcoveVideoView);
+        adapterView = new AdapterView((v) -> {
+            int videoIndex = (int) v.findViewById(R.id.titleTextView).getTag();
+            try {
+                brightcoveVideoView.stopPlayback();
+                brightcoveVideoView.setCurrentIndex(Integer.parseInt(videoList.get(videoIndex).getId()));
+                brightcoveVideoView.start();
+
+            } catch (Exception e) {
+                Log.v(TAG, "Error loading media:" + videoList.get(videoIndex).getId());
+            }
+        });
         videoListView.setAdapter(adapterView);
         catalog = new Catalog.Builder(brightcoveVideoView.getEventEmitter(), accountId)
                 .setBaseURL(Catalog.DEFAULT_EDGE_BASE_URL)
@@ -119,6 +142,7 @@ public class MainActivity extends BrightcovePlayer {
         catalog.findPlaylistByReferenceID(playListReference, new PlaylistListener() {
             @Override
             public void onPlaylist(Playlist playlist) {
+                videoList = playlist.getVideos();
                 brightcoveVideoView.addAll(playlist.getVideos());
                 adapterView.setVideoList(playlist.getVideos());
                 brightcoveVideoView.start();

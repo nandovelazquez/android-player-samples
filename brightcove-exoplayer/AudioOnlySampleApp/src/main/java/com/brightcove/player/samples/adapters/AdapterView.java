@@ -1,8 +1,7 @@
-package com.brightcove.player.samples.audioonly;
+package com.brightcove.player.samples.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.brightcove.player.logging.Log;
 import com.brightcove.player.model.Video;
-import com.brightcove.player.view.BrightcoveExoPlayerVideoView;
+import com.brightcove.player.samples.audioonly.R;
 import com.squareup.picasso.Picasso;
 
 import java.net.URI;
@@ -27,12 +26,12 @@ import java.util.List;
 public class AdapterView extends RecyclerView.Adapter<AdapterView.ViewHolder> {
 
     private final String TAG = this.getClass().getSimpleName();
-    private final BrightcoveExoPlayerVideoView brightcoveVideoView;
     private final List<Video> videoList = new ArrayList<>();
+    private final View.OnClickListener onClickListener;
 
 
-    public AdapterView (BrightcoveExoPlayerVideoView videoView) {
-        brightcoveVideoView = videoView;
+    public AdapterView (View.OnClickListener onClickListener) {
+        this.onClickListener = onClickListener;
     }
 
     @Override
@@ -49,6 +48,7 @@ public class AdapterView extends RecyclerView.Adapter<AdapterView.ViewHolder> {
 
         if (video != null) {
             holder.videoTitleTextView.setText(video.getStringProperty(Video.Fields.NAME));
+            holder.videoTitleTextView.setTag(holder.getAbsoluteAdapterPosition());
             holder.videoDescriptionTextView.setText(video.getStringProperty(Video.Fields.DESCRIPTION));
 
             URI imageUri = video.getStillImageUri();
@@ -59,18 +59,13 @@ public class AdapterView extends RecyclerView.Adapter<AdapterView.ViewHolder> {
                 Picasso.get().load(imageUri.toASCIIString()).into(holder.videoThumbnailView);
             }
 
+
             holder.video = video;
-            holder.itemLayout.setOnClickListener((v) -> {
-                try {
-                    brightcoveVideoView.stopPlayback();
-                    brightcoveVideoView.setCurrentIndex(holder.getAbsoluteAdapterPosition());
-                    brightcoveVideoView.start();
-                } catch (Exception e) {
-                    Log.v(TAG, "Error loading media:" + video.getId());
-                }
-            });
+            holder.itemLayout.setOnClickListener(onClickListener);
         }
     }
+
+    public void getSomething() {}
 
     @Override
     public int getItemCount() {
@@ -111,6 +106,7 @@ public class AdapterView extends RecyclerView.Adapter<AdapterView.ViewHolder> {
         public final TextView videoDescriptionTextView;
         public LinearLayout itemLayout;
         public Video video;
+        public int videoPosition;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -120,6 +116,8 @@ public class AdapterView extends RecyclerView.Adapter<AdapterView.ViewHolder> {
             videoDescriptionTextView = itemView.findViewById(R.id.descriptionTextView);
 
             itemLayout = itemView.findViewById(R.id.linerarLayoutItem);
+
+            videoPosition = getAbsoluteAdapterPosition();
         }
 
     }
